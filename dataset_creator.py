@@ -1,35 +1,45 @@
 import os
+import pickle
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+import mediapipe as mp
 import cv2
+import matplotlib.pyplot as plt
+
+base_options=python.BaseOptions(model_asset_path="hand_landmarker.task")
+options=vision.HandLandmarkerOptions(base_options=base_options,num_hands=1)
+
+detector=vision.HandLandmarker.create_from_options(options)
 
 DATASET_DIR='./dataset'
-if not os.path.exists(DATASET_DIR):
-    os.makedirs(DATASET_DIR)
-    
-no_of_classes=4
-dataset_size=100
 
-cap=cv2.VideoCapture(0)
-for j in range(no_of_classes):
-    if not os.path.exists(os.path.join(DATASET_DIR,str(j))):
-        os.makedirs(os.path.join(DATASET_DIR,str(j)))
-        
-    
-    done=False
-    while True:
-        ret,frame=cap.read()
-        cv2.putText(frame,"Press A",(100,50),cv2.FONT_HERSHEY_SIMPLEX,1.3,(0,255,0),3,cv2.LINE_AA)
-        cv2.imshow('frame',frame)
-        if cv2.waitKey(25)==ord('a'):
-            break
-        
-    counter=0
-    while counter<dataset_size:
-        ret,frame=cap.read()
-        cv2.imshow('frame',frame)
-        cv2.waitKey(25)
-        cv2.imwrite(os.path.join(DATASET_DIR,str(j),'{}.jpg'.format(counter)),frame)
-        counter+=1
-        
-cap.release()
-cv2.destroyAllWindows()
+data=[]
+labels=[]
 
+for dir in os.listdir(DATASET_DIR):
+    for img_path in os.listdir(os.path.join(DATASET_DIR,dir)):
+        full_path=os.path.join(DATASET_DIR,dir,img_path)
+        image=mp.Image.create_from_file(full_path)
+        result=detector.detect(image)
+        if result.hand_landmarks:
+            hand=result.hand_landmarks[0]
+            
+            x_=[]
+            y_=[]
+            
+            for landmark in hand:
+                x_.append(landmark.x)
+                y_.append(landmark.y)
+                
+            features=[]
+            
+            for landmark in hand:
+                features.append(landmark.x-min(x_))
+                features.append(landmark.y-min(y_))
+                
+            data.append(features)
+            labels.append(dir)
+            
+with open("data.pickle","wb") as f:
+    pickle.dump({"data":data,"labels":labels},f)
+            
