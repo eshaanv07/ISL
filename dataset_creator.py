@@ -11,7 +11,7 @@ options=vision.HandLandmarkerOptions(base_options=base_options,num_hands=1)
 
 detector=vision.HandLandmarker.create_from_options(options)
 
-DATASET_DIR='./dataset'
+DATASET_DIR='./Indian'
 
 data=[]
 labels=[]

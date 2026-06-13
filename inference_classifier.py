@@ -15,7 +15,7 @@ detector=vision.HandLandmarker.create_from_options(options)
 
 cap=cv2.VideoCapture(0)
 
-labels_dict={0:'A',1:'B',2:'C',3:'D',4:'E',5:'F',6:'G',7:'H',8:'I',9:'J',10:'K',11:'L',12:'M',13:'N',14:'O',15:'P',16:'Q',17:'R',18:'S',19:'T',20:'U',21:'V',22:'W',23:'X',24:'Y',25:'Z'}
+labels_dict={0:"1",1:"2",2:"3",3:"4",4:"5",5:"6",6:"7",7:"8",8:"9",9:'A',10:'B',11:'C',12:'D',13:'E',14:'F',15:'G',16:'H',17:'I',18:'J',19:'K',20:'L',21:'M',22:'N',23:'O',24:'P',25:'Q',26:'R',27:'S',28:'T',29:'U',30:'V',31:'W',32:'X',33:'Y',34:'Z'}
 
 while True:
     features=[]
@@ -44,16 +44,16 @@ while True:
             
         for landmark in hand_landmarks:
             features.append(landmark.x-min(x_))
-            features.append(landmarks.y-min(y_))
+            features.append(landmark.y-min(y_))
             
         x1=int(min(x_)*W)-10
         y1=int(min(y_)*H)-10
         
-        x2=int(min(x_)*W)+10
-        y2=int(min(y_)*H)+10
+        x2=int(max(x_)*W)+10
+        y2=int(max(y_)*H)+10
         
         prediction=model.predict([np.asarray(features)])
-        predicted_character=labels_dict[int(prediction[0])]
+        predicted_character=(prediction[0])
         
         cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,0),2)
         cv2.putText(frame,predicted_character,(x1,y1-10),cv2.FONT_HERSHEY_SIMPLEX,1.3,(0,255,0),3,cv2.LINE_AA)
@@ -65,7 +65,7 @@ while True:
             break
         
 cap.release()
-cv2.destoryAllWindows()
+cv2.destroyAllWindows()
 
 
 
